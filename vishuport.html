@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vishnu S — Strategic Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+:root{--bg:#050505;--surface:#0f0f0f;--text-main:#ffffff;--text-dim:rgba(255,255,255,0.6);--accent:#ffffff;--glass:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.08);--transition:cubic-bezier(0.22,1,0.36,1);--radius-lg:32px;--radius-md:16px}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-main);overflow-x:hidden;cursor:none;line-height:1.6}
+canvas#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.4}
+.c-cursor{width:8px;height:8px;background:#fff;border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transition:transform 0.1s var(--transition)}
+.c-cursor-follower{width:40px;height:40px;border:1px solid rgba(255,255,255,0.3);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:transform 0.5s var(--transition),width 0.3s,height 0.3s,background 0.3s}
+.c-cursor-follower.active{width:80px;height:80px;background:rgba(255,255,255,0.05);border-color:transparent}
+nav{position:fixed;top:0;left:0;width:100%;z-index:1000;display:flex;justify-content:space-between;align-items:center;padding:30px 8%;transition:all 0.4s var(--transition)}
+nav.scrolled{padding:20px 8%;background:rgba(5,5,5,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-1px;text-decoration:none;color:#fff}
+.nav-links{display:flex;gap:40px;list-style:none}
+.nav-links a{text-decoration:none;color:var(--text-dim);font-size:0.9rem;font-weight:500;transition:color 0.3s;position:relative}
+.nav-links a:hover{color:#fff}
+.nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:1px;background:#fff;transition:width 0.3s}
+.nav-links a:hover::after{width:100%}
+.hero{position:relative;min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:120px 8% 80px;z-index:1}
+.hero-content{text-align:center;max-width:1200px;display:flex;flex-direction:column;align-items:center}
+.hero-img-wrapper{width:220px;height:220px;margin-bottom:40px;position:relative;border-radius:50%;padding:8px;background:linear-gradient(135deg, var(--border), transparent);animation:float 6s ease-in-out infinite}
+.hero-img-wrapper::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(90deg, transparent, #fff, transparent);animation:rotate 4s linear infinite;z-index:-1}
+.hero-img{width:100%;height:100%;border-radius:50%;object-fit:cover;filter:grayscale(100%) contrast(110%);border:4px solid var(--bg)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.hero-h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,10vw,8.5rem);font-weight:800;line-height:0.85;margin-bottom:25px;background:linear-gradient(to bottom,#fff,#444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-4px}
+.hero-tagline{font-size:clamp(1rem,2vw,1.3rem);color:var(--text-dim);max-width:650px;margin:0 auto 40px;font-weight:300}
+.hero-tagline em{color:#fff;font-style:normal;font-weight:500}
+.hero-btns{display:flex;gap:20px;justify-content:center}
+.btn{padding:18px 36px;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:all 0.4s var(--transition);position:relative;overflow:hidden;display:inline-block}
+.btn-m{background:#fff;color:#000;border:1px solid #fff}
+.btn-m:hover{background:transparent;color:#fff}
+.btn-s{background:transparent;color:#fff;border:1px solid var(--border)}
+.btn-s:hover{background:var(--glass);border-color:#fff}
+.scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px}
+.scroll-line{width:1px;height:60px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollDown 2s infinite}
+@keyframes scrollDown{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+section{padding:140px 8%;position:relative;z-index:1}
+.section-head{margin-bottom:80px}
+.section-tag{font-size:0.75rem;text-transform:uppercase;letter-spacing:3px;color:var(--text-dim);display:block;margin-bottom:15px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;letter-spacing:-2px}
+.section-title span{color:var(--text-dim)}
+.about-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:100px;align-items:start}
+.about-text{font-size:1.2rem;line-height:1.8;color:var(--text-dim);font-weight:300}
+.about-text b{color:#fff;font-weight:500}
+.stats-container{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.stat-box{background:var(--surface);border:1px solid var(--border);padding:40px;border-radius:var(--radius-md);transition:all 0.4s var(--transition)}
+.stat-box:hover{transform:translateY(-10px);background:var(--glass);border-color:rgba(255,255,255,0.2)}
+.stat-val{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:700;display:block;margin-bottom:5px}
+.stat-label{font-size:0.8rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:1px}
+.objective-card{background:linear-gradient(135deg,#111,#000);border:1px solid var(--border);padding:80px;border-radius:var(--radius-lg);margin-top:40px;position:relative;overflow:hidden}
+.objective-card::after{content:'';position:absolute;top:0;right:0;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)}
+.objective-p{font-size:clamp(1.5rem,3vw,2rem);font-family:'Syne',sans-serif;line-height:1.4;font-weight:600}
+.edu-timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px}
+.edu-item{background:var(--surface);padding:50px;border-radius:var(--radius-md);border:1px solid var(--border);transition:all 0.4s var(--transition);position:relative}
+.edu-item:hover{border-color:#fff;transform:scale(1.02)}
+.edu-year{font-size:0.8rem;color:var(--text-dim);margin-bottom:20px;display:block}
+.edu-h3{font-family:'Syne',sans-serif;font-size:1.5rem;margin-bottom:10px}
+.edu-p{color:var(--text-dim);font-size:0.95rem;margin-bottom:25px}
+.edu-badge{display:inline-block;padding:6px 16px;background:rgba(255,255,255,0.1);border-radius:100px;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px}
+.skills-wrapper{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:60px}
+.skill-category-h{font-family:'Syne',sans-serif;font-size:1.2rem;margin-bottom:40px;display:flex;align-items:center;gap:15px}
+.skill-category-h::after{content:'';height:1px;flex:1;background:var(--border)}
+.skill-list{display:flex;flex-direction:column;gap:30px}
+.skill-info{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.9rem}
+.skill-bar-outer{height:2px;background:var(--border);width:100%;position:relative}
+.skill-bar-inner{position:absolute;top:0;left:0;height:100%;background:#fff;width:0;transition:width 1.5s var(--transition)}
+.skill-bar-inner.active{width:var(--p)}
+.strengths-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.strength-item{padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);transition:all 0.4s var(--transition)}
+.strength-item:hover{background:#fff;color:#000}
+.strength-item:hover .strength-p{color:#333}
+.strength-icon{font-size:2rem;margin-bottom:20px;display:block}
+.strength-h{font-family:'Syne',sans-serif;font-size:1.2rem;margin-bottom:15px}
+.strength-p{font-size:0.85rem;color:var(--text-dim);transition:color 0.4s}
+.vision-wrap{background:var(--text-main);color:var(--bg);padding:120px 8%;text-align:center}
+.vision-h{font-family:'Syne',sans-serif;font-size:clamp(2rem,6vw,4rem);font-weight:800;line-height:1.1;letter-spacing:-3px}
+.contact-section{display:grid;grid-template-columns:1fr 1fr;gap:100px;background:#000}
+.contact-link{display:flex;align-items:center;gap:30px;padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);text-decoration:none;color:#fff;margin-bottom:20px;transition:all 0.4s var(--transition)}
+.contact-link:hover{transform:translateX(20px);border-color:#fff}
+.contact-circle{width:60px;height:60px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.contact-label{display:block;font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px}
+.contact-val{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:600}
+footer{padding:60px 8%;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:var(--text-dim);background:#000;flex-wrap:wrap;gap:20px}
+.footer-left{display:flex;align-items:center;gap:20px}
+.footer-right{display:flex;align-items:center;gap:30px}
+.footer-right span{text-transform:uppercase;letter-spacing:2px;font-size:0.7rem;color:rgba(255,255,255,0.3)}
+.social-links{display:flex;gap:25px;list-style:none}
+.social-links li a{display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.3s var(--transition)}
+.social-links li a:hover{transform:translateY(-3px)}
+.social-links svg{width:20px;height:20px;fill:var(--text-dim);transition:fill 0.3s}
+.social-links li a:hover svg{fill:#ffffff}
+.f-logo{font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:1.2rem}
+.reveal{opacity:0;transform:translateY(30px);transition:all 0.8s var(--transition)}
+.reveal.active{opacity:1;transform:translateY(0)}
+.menu-btn{display:none;flex-direction:column;gap:6px;background:none;border:none;z-index:1001}
+.menu-btn span{width:30px;height:2px;background:#fff;transition:0.3s}
+@media (max-width:1024px){.about-grid,.contact-section{grid-template-columns:1fr;gap:60px}}
+@media (max-width:768px){.nav-links{display:none}.menu-btn{display:flex}nav{padding:20px 5%}section{padding:80px 5%}.hero-h1{font-size:3.5rem}.objective-card{padding:40px}.skills-wrapper{grid-template-columns:1fr}.hero-img-wrapper{width:180px;height:180px}footer{flex-direction:column;text-align:center}.footer-right{flex-direction:column;gap:15px}}
+</style>
+</head>
+<body>
+<canvas id="canvas-bg"></canvas>
+<div class="c-cursor" id="cursor"></div>
+<div class="c-cursor-follower" id="follower"></div>
+
+<nav id="nav">
+<a href="#" class="logo">VISHNU S</a>
+<ul class="nav-links">
+<li><a href="#about">About</a></li>
+<li><a href="#education">Education</a></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#vision">Vision</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+<button class="menu-btn" onclick="toggleMenu()">
+<span></span><span></span>
+</button>
+</nav>
+
+<section class="hero">
+<div class="hero-content">
+<div class="hero-img-wrapper">
+<img src="vishnu.png" alt="Vishnu S" class="hero-img">
+</div>
+<h1 class="hero-h1">VISHNU S</h1>
+<p class="hero-tagline">Master of Computer Applications student bridging the gap between <em>Complex Engineering</em> and <em>Strategic Business</em>.</p>
+<div class="hero-btns">
+<a href="#contact" class="btn btn-m">Work With Me</a>
+<a href="#about" class="btn btn-s">Explore Journey</a>
+</div>
+</div>
+<div class="scroll-indicator">
+<div class="scroll-line"></div>
+</div>
+</section>
+
+<section id="about">
+<div class="section-head reveal">
+<span class="section-tag">01 / Introduction</span>
+<h2 class="section-title">About <span>Myself</span></h2>
+</div>
+<div class="about-grid">
+<div class="about-text reveal">
+<p>I am a forward-thinking <b>MCA student</b> based in India, specializing in the architectural fusion of software and commerce. My journey is defined by a relentless curiosity for how technology can be leveraged to solve large-scale business problems.<br><br>With a foundation in <b>Commerce (B.Com)</b> and a technical evolution into <b>Computer Applications</b>, I offer a unique perspective that most engineers lack: the ability to see the bottom-line impact of every line of code.</p>
+</div>
+<div class="stats-container reveal">
+<div class="stat-box">
+<span class="stat-val">MCA</span>
+<span class="stat-label">PG Degree</span>
+</div>
+<div class="stat-box">
+<span class="stat-val">AI</span>
+<span class="stat-label">Research</span>
+</div>
+<div class="stat-box">
+<span class="stat-val">B.Com</span>
+<span class="stat-label">Business Core</span>
+</div>
+<div class="stat-box">
+<span class="stat-val">∞</span>
+<span class="stat-label">Innovation</span>
+</div>
+</div>
+</div>
+<div class="objective-card reveal">
+<span class="section-tag" style="color:#fff">Career Objective</span>
+<p class="objective-p">"To architect a career at the convergence of technology, finance, and entrepreneurship, delivering scalable digital intelligence for the global market."</p>
+</div>
+</section>
+
+<section id="education">
+<div class="section-head reveal">
+<span class="section-tag">02 / Pedagogy</span>
+<h2 class="section-title">Academic <span>History</span></h2>
+</div>
+<div class="edu-timeline">
+<div class="edu-item reveal">
+<span class="edu-year">2024 — Present</span>
+<h3 class="edu-h3">Master of Computer Applications</h3>
+<p class="edu-p">Lourdes Matha College of Science & Technology. Focusing on advanced algorithm design and system architecture.</p>
+<span class="edu-badge">In Progress</span>
+</div>
+<div class="edu-item reveal">
+<span class="edu-year">2021 — 2024</span>
+<h3 class="edu-h3">Bachelor of Commerce</h3>
+<p class="edu-p">Lourdes Matha College. Graduated with a 6.33 CGPA, mastering financial strategies and market dynamics.</p>
+<span class="edu-badge" style="background:rgba(255,255,255,0.2)">Completed</span>
+</div>
+<div class="edu-item reveal">
+<span class="edu-year">The Institution</span>
+<h3 class="edu-h3">Lourdes Matha College</h3>
+<p class="edu-p">Kerala, India. An environment fostering excellence in technical and professional education.</p>
+<span class="edu-badge">Accredited</span>
+</div>
+</div>
+</section>
+
+<section id="skills">
+<div class="section-head reveal">
+<span class="section-tag">03 / Expertise</span>
+<h2 class="section-title">Technical <span>& Strategic</span></h2>
+</div>
+<div class="skills-wrapper">
+<div class="skill-category reveal">
+<h3 class="skill-category-h">Engineering</h3>
+<div class="skill-list">
+<div class="skill-item">
+<div class="skill-info"><span>Python & Logic Design</span><span>85%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:85%"></div></div>
+</div>
+<div class="skill-item">
+<div class="skill-info"><span>AI & Neural Foundations</span><span>70%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:70%"></div></div>
+</div>
+<div class="skill-item">
+<div class="skill-info"><span>Data Structures</span><span>75%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:75%"></div></div>
+</div>
+</div>
+</div>
+<div class="skill-category reveal">
+<h3 class="skill-category-h">Business Strategy</h3>
+<div class="skill-list">
+<div class="skill-item">
+<div class="skill-info"><span>Financial Analysis</span><span>80%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:80%"></div></div>
+</div>
+<div class="skill-item">
+<div class="skill-info"><span>Entrepreneurship</span><span>90%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:90%"></div></div>
+</div>
+<div class="skill-item">
+<div class="skill-info"><span>Problem Solving</span><span>95%</span></div>
+<div class="skill-bar-outer"><div class="skill-bar-inner" style="--p:95%"></div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="strengths">
+<div class="section-head reveal">
+<span class="section-tag">04 / Core Traits</span>
+<h2 class="section-title">Why <span>Me?</span></h2>
+</div>
+<div class="strengths-grid">
+<div class="strength-item reveal">
+<span class="strength-icon">◈</span>
+<h3 class="strength-h">Quick Learner</h3>
+<p class="strength-p">Rapidly assimilating new frameworks, from deep learning to financial models.</p>
+</div>
+<div class="strength-item reveal">
+<span class="strength-icon">◈</span>
+<h3 class="strength-h">Founder Mindset</h3>
+<p class="strength-p">Taking extreme ownership of projects and viewing them through a lens of scalability.</p>
+</div>
+<div class="strength-item reveal">
+<span class="strength-icon">◈</span>
+<h3 class="strength-h">Creative Logic</h3>
+<p class="strength-p">Solving technical bottlenecks with unconventional and efficient solutions.</p>
+</div>
+<div class="strength-item reveal">
+<span class="strength-icon">◈</span>
+<h3 class="strength-h">Bridge Builder</h3>
+<p class="strength-p">Translating complex code into business value for stakeholders and investors.</p>
+</div>
+</div>
+</section>
+
+<div class="vision-wrap reveal" id="vision">
+<span class="section-tag" style="color:rgba(0,0,0,0.5)">The Philosophy</span>
+<h2 class="vision-h">"Building affordable, scalable, and intelligent solutions that create real-world impact."</h2>
+</div>
+
+<section id="contact">
+<div class="section-head reveal">
+<span class="section-tag">05 / Get In Touch</span>
+<h2 class="section-title">Let's <span>Connect</span></h2>
+</div>
+<div class="contact-section">
+<div class="contact-info reveal">
+<a href="mailto:jv2729229@gmail.com" class="contact-link">
+<div class="contact-circle">✉</div>
+<div>
+<span class="contact-label">Mail Me</span>
+<span class="contact-val">jv2729229@gmail.com</span>
+</div>
+</a>
+<a href="tel:8714932615" class="contact-link">
+<div class="contact-circle">☏</div>
+<div>
+<span class="contact-label">Call Me</span>
+<span class="contact-val">+91 87149 32615</span>
+</div>
+</a>
+<div class="contact-link" style="cursor:default">
+<div class="contact-circle">⟴</div>
+<div>
+<span class="contact-label">Location</span>
+<span class="contact-val">Kerala, India</span>
+</div>
+</div>
+</div>
+<div class="reveal">
+<p style="font-size:1.5rem;margin-bottom:40px;font-weight:300;color:var(--text-dim)">Currently open for <b>Internships</b>, <b>Collaborations</b>, and <b>Strategic Partnerships</b>.</p>
+<a href="mailto:jv2729229@gmail.com" class="btn btn-m" style="width:100%;text-align:center">Send a Message</a>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="footer-left">
+<div class="f-logo">VS</div>
+<p>© 2026 Vishnu S. All rights reserved.</p>
+</div>
+<div class="footer-right">
+<span>Connect Me</span>
+<ul class="social-links">
+<li>
+<a href="#" target="_blank" aria-label="LinkedIn">
+<svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+</a>
+</li>
+<li>
+<a href="#" target="_blank" aria-label="Instagram">
+<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+</a>
+</li>
+<li>
+<a href="#" target="_blank" aria-label="Twitter">
+<svg viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+</a>
+</li>
+<li>
+<a href="#" target="_blank" aria-label="Facebook">
+<svg viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+</a>
+</li>
+</ul>
+</div>
+</footer>
+
+<script>
+const canvas=document.getElementById('canvas-bg');
+const ctx=canvas.getContext('2d');
+let particles=[];
+function initCanvas(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+class Particle{
+constructor(){
+this.x=Math.random()*canvas.width;
+this.y=Math.random()*canvas.height;
+this.size=Math.random()*1.5;
+this.speedX=Math.random()*0.4-0.2;
+this.speedY=Math.random()*0.4-0.2;
+}
+update(){
+this.x+=this.speedX;
+this.y+=this.speedY;
+if(this.x>canvas.width)this.x=0;
+if(this.x<0)this.x=canvas.width;
+if(this.y>canvas.height)this.y=0;
+if(this.y<0)this.y=canvas.height;
+}
+draw(){
+ctx.fillStyle='rgba(255,255,255,0.3)';
+ctx.beginPath();
+ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+ctx.fill();
+}
+}
+function createParticles(){
+for(let i=0;i<80;i++){
+particles.push(new Particle());
+}
+}
+function animateParticles(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+particles.forEach(p=>{
+p.update();
+p.draw();
+});
+requestAnimationFrame(animateParticles);
+}
+initCanvas();
+createParticles();
+animateParticles();
+window.addEventListener('resize',initCanvas);
+
+const cursor=document.getElementById('cursor');
+const follower=document.getElementById('follower');
+let mouseX=0,mouseY=0,fX=0,fY=0;
+document.addEventListener('mousemove',(e)=>{
+mouseX=e.clientX;
+mouseY=e.clientY;
+cursor.style.transform=`translate3d(${mouseX}px, ${mouseY}px, 0)`;
+});
+function renderCursor(){
+fX+=(mouseX-fX-20)*0.1;
+fY+=(mouseY-fY-20)*0.1;
+follower.style.transform=`translate3d(${fX}px, ${fY}px, 0)`;
+requestAnimationFrame(renderCursor);
+}
+renderCursor();
+
+document.querySelectorAll('a, button, .stat-box, .edu-item, .strength-item, .hero-img-wrapper, .social-links li a').forEach(el=>{
+el.addEventListener('mouseenter',()=>{follower.classList.add('active');cursor.style.background='#000'});
+el.addEventListener('mouseleave',()=>{follower.classList.remove('active');cursor.style.background='#fff'});
+});
+
+const observerOptions={threshold:0.1};
+const observer=new IntersectionObserver((entries)=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add('active');
+if(entry.target.querySelector('.skill-bar-inner')){
+entry.target.querySelectorAll('.skill-bar-inner').forEach(bar=>bar.classList.add('active'));
+}
+}
+});
+},observerOptions);
+document.querySelectorAll('.reveal, .skill-category').forEach(el=>observer.observe(el));
+
+window.addEventListener('scroll',()=>{
+const nav=document.getElementById('nav');
+if(window.scrollY>50)nav.classList.add('scrolled');
+else nav.classList.remove('scrolled');
+});
+
+function toggleMenu(){
+const links=document.querySelector('.nav-links');
+links.style.display=links.style.display==='flex'?'none':'flex';
+links.style.flexDirection='column';
+links.style.position='absolute';
+links.style.top='100%';
+links.style.left='0';
+links.style.width='100%';
+links.style.background='#050505';
+links.style.padding='40px';
+}
+</script>
+</body>
+</html>
